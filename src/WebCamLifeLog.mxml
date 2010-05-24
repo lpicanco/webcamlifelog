@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" width="458" height="139" 
+					   creationComplete="windowedapplication1_creationCompleteHandler(event)"
+					   title="WebCam Life Log 0.1">
+	<fx:Script>
+		<![CDATA[
+			import com.luizpicanco.webcamlifelog.WebCam;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+	
+			private var webCam: WebCam;
+			private var timer: Timer;
+
+			protected function windowedapplication1_creationCompleteHandler(event:FlexEvent):void
+			{
+				timer = new Timer(0);
+				timer.addEventListener(TimerEvent.TIMER, onTimer);
+			}
+			
+			private function onTimer(e:TimerEvent):void
+			{
+				webCam.shoot();
+			}			
+
+			protected function btnStartStop_clickHandler(event:MouseEvent):void
+			{
+				if (timer.running) {
+					timer.stop();
+					btnStartStop.label = "Iniciar";
+				} else {
+					var dir: String = txtDir.text;
+					var interval: Number = txtInterval.value * 1000 * 60;
+					
+					if (dir.length > 0) {
+						webCam = new WebCam(dir);
+						timer.delay = interval;
+						onTimer(null);
+						timer.start();
+						btnStartStop.label = "Parar";
+					} else {
+						Alert.show("O diretório " + dir + " não existe.");						
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Form left="10" top="10" bottom="41" right="11">
+		<mx:FormItem label="Diretório de gravação">
+			<s:TextInput width="277" id="txtDir"/>
+		</mx:FormItem>
+		<mx:FormItem label="Intervalo (minutos)">
+			<s:NumericStepper id="txtInterval" minimum="1" maximum="50000"/>
+		</mx:FormItem>
+	</mx:Form>
+	<s:Button label="Iniciar" right="10" bottom="10" id="btnStartStop" click="btnStartStop_clickHandler(event)"/>
+</s:WindowedApplication>
